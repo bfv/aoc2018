@@ -6,7 +6,7 @@ function checkStrings (str1: string, str2: string) {
     let diffs: number[] = [];
     let result = '';
 
-    for (let i = 0; i < str1.length; i++) {
+    for (let i = 0; i < str1.length && diffs.length <= 1; i++) {
         if (str1.substring(i, i + 1) != str2.substring(i, i + 1)) {
             diffs.push(i);
         }
