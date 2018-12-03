@@ -20,6 +20,9 @@ function checkStrings (str1: string, str2: string) {
     return result;
 }
 
+
+let t1 = new Date().getTime();
+
 let result = '';
 for (let i = 0; i < Input.data.length && result == ''; i++) {
     for (let j = 0; j < Input.data.length && result == ''; j++) {
@@ -28,3 +31,6 @@ for (let i = 0; i < Input.data.length && result == ''; i++) {
 }
 
 console.log('day2b:', result);
+
+let t2 = new Date().getTime();
+console.log('time:', (t2 - t1), 'ms');

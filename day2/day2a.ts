@@ -31,8 +31,14 @@ function checkString (idString: string) {
     }
 }
 
+
+let t1 = new Date().getTime();
+
 for (let i = 0; i < Input.data.length; i++) {
     checkString(Input.data[i]);
 }
 
 console.log('day2a, 2:', found2s, '3:', found3s, 'checksum:', (found2s * found3s));
+
+let t2 = new Date().getTime();
+console.log('time:', (t2 - t1), 'ms');
