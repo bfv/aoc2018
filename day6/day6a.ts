@@ -1,33 +1,11 @@
 
 import { Input } from './input';
+import { Coordinate } from './coordinate';
+import { Playfield } from './playfield';
 
 let coordinates: Coordinate[];
 let playfield: Playfield;
 
-export class Coordinate {
-    constructor(public x: number, public y: number) { }
-
-    distance(x: number, y: number) {
-        return (Math.abs(this.x - x) + Math.abs(this.y - y));
-    }
-}
-
-interface YRows {
-    [key: string]: XRow;
-}
-interface XRow {
-    [key: string]: string;
-}
-
-interface Playfield {
-    minX: number,
-    maxX: number,
-    minY: number,
-    maxY: number,
-    rows: number,
-    cols: number,
-    data: YRows
-}
 
 function parseInput(inputData: Array<number>) {
     let coordinates: Coordinate[] = [];
@@ -37,53 +15,9 @@ function parseInput(inputData: Array<number>) {
     return coordinates;
 }
 
-function findMaxCoordinate(coordinates: Coordinate[]) {
-
-    let maxX = Math.max(...coordinates.map(coordinate => coordinate.x));
-    let maxY = Math.max(...coordinates.map(coordinate => coordinate.y));
-
-    return new Coordinate(maxX, maxY);
-}
-
-function findMinCoordinate(coordinates: Coordinate[]) {
-
-    let minX = Math.min(...coordinates.map(coordinate => coordinate.x));
-    let minY = Math.min(...coordinates.map(coordinate => coordinate.y));
-
-    return new Coordinate(minX, minY);
-}
-
-function initPlayfield(): Playfield {
-
-    let data: YRows = {};
-
-    let min = findMinCoordinate(coordinates);
-    let max = findMaxCoordinate(coordinates);
-
-    for (let y = min.y - 1; y <= max.y + 1; y++) {
-
-        let xvalues: XRow = {};
-        for (let x = min.x - 1; x <= max.x + 1; x++) {
-            xvalues['x' + x.toString()] = '.';
-        }
-
-        data['y' + y.toString()] = xvalues;
-    }
-
-    return {
-        minX: min.x - 1,
-        maxX: max.x + 1,
-        minY: min.y - 1,
-        maxY: max.y + 1,
-        rows: max.y - min.y + 3,
-        cols: max.x - min.x + 3,
-        data: data
-    };
-}
-
 function placeCoordinates(playfield: Playfield, coordinates: Coordinate[]) {
     for (let i in coordinates) {
-        let row = setValue(coordinates[i].x, coordinates[i].y, getCoordinateName(i));
+        let row = playfield.setValue(coordinates[i].x, coordinates[i].y, getCoordinateName(i));
     }
 }
 
@@ -97,33 +31,6 @@ function getCoordinateName(coordinateNumber: string): string {
     }
 
     return name;
-}
-
-function getRow(y: number): XRow {
-    return playfield.data['y' + y.toString()];
-}
-
-function getValue(x: number, y: number): string {
-    let row = getRow(y);
-    return row['x' + x.toString()];
-}
-
-function setValue(x: number, y: number, val: string): void {
-    let row = getRow(y);
-    row['x' + x.toString()] = val;
-}
-
-
-function displayPlayfield(playfield: Playfield) {
-
-    for (let y = playfield.minY; y < playfield.maxY + 1; y++) {
-        let row = '';
-        for (let x = playfield.minX; x < playfield.maxX + 1; x++) {
-            let val = getValue(x, y);
-            row += val + ' ';
-        }
-        console.log(row);
-    }
 }
 
 function containsCoordinate(x: number, y: number) {
@@ -167,47 +74,18 @@ function findDistances(playfield: Playfield, coordinates: Coordinate[]) {
                 }
             }
 
-            setValue(x, y, (minDistanceCoordinate.split(',').length > 1 ? '.' : minDistanceCoordinate.toLowerCase()));
+            playfield.setValue(x, y, (minDistanceCoordinate.split(',').length > 1 ? '.' : minDistanceCoordinate.toLowerCase()));
         }
     }
 }
 
-function removeInfinites(playfield: Playfield) {
-
-    let edges: string[] = [];
-    for (let x = playfield.minX; x < playfield.maxX; x++) {
-        edges.push(getValue(x, playfield.minY));
-        edges.push(getValue(x, playfield.maxY));
-    }
-    for (let y = playfield.minY; y < playfield.maxY; y++) {
-        edges.push(getValue(playfield.minX, y));
-        edges.push(getValue(playfield.maxX, y));
-    }
-    edges = edges.filter((item, i, ar) => { return ar.indexOf(item) === i; });
-
-    for (let val of edges) {
-        iteratePlayfield((x, y) => {
-            if (getValue(x, y).toLowerCase() == val) {
-                setValue(x, y, ' ');
-            }
-        });
-    }
-}
-
-function iteratePlayfield(f: (x: number, y: number) => void) {
-    for (let y = playfield.minY; y < playfield.maxY + 1; y++) {
-        for (let x = playfield.minX; x < playfield.maxX + 1; x++) {
-            f(x, y);
-        }
-    }
-}
 
 function countPlayfield(playfield: Playfield) {
 
     let counts: { [key: string]: number } = {};
 
-    iteratePlayfield((x, y) => {
-        let val = getValue(x, y).trim().toLowerCase();
+    playfield.iteratePlayfield((x, y) => {
+        let val = playfield.getValue(x, y).trim().toLowerCase();
         if (val != '') {
             if (counts['#' + val] === undefined) {
                 counts['#' + val] = 1;
@@ -228,14 +106,14 @@ function countPlayfield(playfield: Playfield) {
 function main(): number {
 
     coordinates = parseInput(Input.data);
-    playfield = initPlayfield();
+    playfield = new Playfield(coordinates);
 
     placeCoordinates(playfield, coordinates);
     findDistances(playfield, coordinates);
-    removeInfinites(playfield);
+    playfield.removeInfinites(playfield);
     let max = countPlayfield(playfield);
 
-    // displayPlayfield(playfield);
+    // playfield.displayPlayfield(playfield);
 
     return max;
 }
@@ -245,6 +123,6 @@ let t1 = new Date().getTime();
 let result = main();
 
 let t2 = new Date().getTime();
-console.log('day6a:', result);
 
+console.log('day6a:', result);
 console.log('time:', (t2 - t1), 'ms');
