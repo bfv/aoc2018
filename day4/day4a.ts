@@ -1,6 +1,6 @@
 
 import { Input } from './input';
-
+/* not finished yet */
 class Event {
     time: string;
     guard: number;

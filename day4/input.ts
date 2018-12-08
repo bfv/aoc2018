@@ -1,3 +1,4 @@
+/* not finished yet */
 export class Input {
     static data = [
         "[1518-05-31 00:27] falls asleep",
