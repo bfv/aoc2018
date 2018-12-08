@@ -7,7 +7,7 @@ let coordinates: Coordinate[];
 let playfield: Playfield;
 
 
-function parseInput(inputData: Array<number>) {
+function parseInput(inputData: Array<number>): Coordinate[] {
     let coordinates: Coordinate[] = [];
     for (let i = 0; i < inputData.length; i += 2) {
         coordinates.push(new Coordinate(inputData[i], inputData[i + 1]));
